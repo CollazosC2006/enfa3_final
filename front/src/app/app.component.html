@@ -1,0 +1,42 @@
+<div class="navbar" >
+  <div class="app-name" style="cursor: pointer;"  >Mininet SDN Manager</div>
+  
+</div>
+<div class="space">
+  
+</div>
+<div class="container-fluid">
+  <!-- Barra de navegación -->
+ 
+
+  <!-- Contenido principal: Div gráfico y botones en paralelo -->
+  <div class="row">
+    <!-- Div de la red -->
+    <div class="col-lg-8 col-md-7">
+      <h2 class="text-center mb-3">Network Architecture: Tree</h2>
+      <div id="networkGraph" class="network-graph"></div>
+    </div>
+
+    <!-- Botones de aplicaciones -->
+    <div class="col-lg-4 col-md-5 d-flex flex-column align-items-center">
+      <h2 class="text-center mb-3" style="text-align: center;">Network Apps</h2>
+        <div *ngFor="let button of buttons" class="btn-group-vertical w-75">
+        <button
+    
+          class="btn app-button mb-2"
+          [ngStyle]="{
+            backgroundColor: button.state ? 'var(--third-color)' : 'var(--primary-color)',
+            color: button.state ? 'black' : 'white'
+          }"
+          (click)="toggleButton(button)"
+        >
+          {{ button.label }}
+        </button>
+
+        </div>
+    </div> 
+  </div>  
+</div>
+
+<app-flow-rules></app-flow-rules>
+<app-examples></app-examples>

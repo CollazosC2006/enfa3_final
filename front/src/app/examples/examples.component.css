@@ -1,0 +1,29 @@
+.example-container {
+    margin-top: 20px;
+  }
+  
+  .example {
+    background-color: #f0f8ff; /* Azul claro */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    width:60%;
+  }
+  
+  .example:nth-child(odd) {
+    background-color: #e6f7ff; /* Azul más claro */
+  }
+  
+  .example:nth-child(even) {
+    background-color: #f8f9fa; /* Gris claro */
+  }
+  
+  code {
+    font-size: 14px;
+    display: block;
+    color: #333;
+  }
+  

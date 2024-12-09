@@ -1,0 +1,11 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+    --primary-color: #302bcd;  /* Azul intenso */
+    --secondary-color: #5170eb; /* Azul mediano */
+    --third-color: #a3dcff;  /* Rojo claro */
+    --accent-color: #e8fbff;  /* Fondo suave */
+    --button-hover: #2c28a0;  /* Hover del botón */
+    --text-color: #302bcd;  /* Blanco para texto */
+    --shadow-color: rgba(0, 0, 0, 0.2);  /* Sombra sutil */
+}
+

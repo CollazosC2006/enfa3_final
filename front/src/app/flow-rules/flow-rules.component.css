@@ -1,0 +1,127 @@
+.space{
+    margin-top: 70px;
+  }
+  
+  .network-graph {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    height: 500px;
+    width: 700px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.2s;
+    margin-right: 50px;
+    
+  }
+  
+  .network-graph:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Botones de aplicaciones */
+  .app-button {
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 200px;
+    height: 35px;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+  
+  .app-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+  
+  /* Títulos */
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 240px;
+    margin-bottom: 10px;
+  }
+  
+  /* Ajustes de diseño general */
+  .container-fluid {
+    padding: 15px;
+  }
+  
+  .row {
+    display: flex;
+    align-items: flex-start;
+    padding-left: 200px;
+  }
+  
+  .btn-group-vertical {
+    width: 100%;
+    margin: 10px;
+  }
+  
+  textarea.form-control {
+    resize: none; /* Para que no se pueda redimensionar manualmente */
+    overflow-y: auto;
+    font-family: monospace; /* Ideal para mostrar JSON */
+  }
+  
+  .form-control {
+    font-family: monospace; /* Uniformidad con JSON */
+    white-space: pre-wrap; /* Respeta los saltos de línea */
+  }
+
+  .rules {
+    
+    font-family: monospace; /* Uniformidad con JSON */
+    white-space: pre-wrap; /* Respeta los saltos de línea */
+    border: 0.5px solid black ; 
+    padding: 5px;
+  }
+  .select{
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 50px;
+    height: 25px;
+    color: white;
+    background-color: var(--primary-color);
+    
+
+  }
+  .d-flex {
+    display: flex;
+  }
+  
+  .align-items-center {
+    align-items: center; /* Alinea los elementos verticalmente */
+  }
+  
+  .justify-content-between {
+    justify-content: space-between; /* Separa los elementos horizontalmente */
+  }
+
+  .select {
+    margin-left: 10px; /* Añade algo de espacio al lado izquierdo */
+  }
+
+  .upload{
+
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 50px;
+    height: 25px;
+    color: white;
+    background-color: var(--primary-color);
+    transition: transform 0.2s, background-color 0.3s;
+  }
+
+  .upload:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+    cursor: pointer ;
+  }
+  .select:hover {
+    filter: brightness(1.1);
+    cursor: pointer ;
+  }
+  

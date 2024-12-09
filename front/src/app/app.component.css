@@ -1,0 +1,85 @@
+/* Div gráfico con bordes redondeados y sombra */
+.navbar {
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 36px;
+  font-family: Helvetica;
+  font-weight: bold;
+  height: 90px; /* Altura inicial */
+  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+ 
+  box-sizing: border-box; /* Para asegurarnos que el padding no afecte el ancho total */
+}
+
+.navbar.shrink {
+  height: 50px; /* Altura reducida */
+}
+
+.space{
+  margin-top: 70px;
+}
+
+.network-graph {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  height: 500px;
+  width: 700px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s;
+  margin-right: 50px;
+  
+}
+
+.network-graph:hover {
+  transform: scale(1.02);
+}
+
+/* Botones de aplicaciones */
+.app-button {
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  width: 200px;
+  height: 35px;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+.app-button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  cursor: pointer ;
+}
+
+/* Títulos */
+h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Ajustes de diseño general */
+.container-fluid {
+  padding: 15px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  padding-left: 200px;
+}
+
+.btn-group-vertical {
+  width: 100%;
+  margin: 10px;
+}
+

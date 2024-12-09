@@ -1,0 +1,167 @@
+<div class="col-md-12" style="width: 50% ; margin: auto ;">
+    <h2>Flow Rules Examples (OpenFlow 1.3 or earlier):</h2>
+    <div class="example-container">
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "cookie": 1,
+          "cookie_mask": 1,
+          "table_id": 0,
+          "idle_timeout": 30,
+          "hard_timeout": 30,
+          "priority": 11111,
+          "flags": 1,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "actions": [
+            {{ '{' }}
+              "type": "OUTPUT",
+              "port": 2
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 22222,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "actions": [
+            {{ '{' }}
+              "type": "GOTO_TABLE",
+              "table_id": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 33333,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "actions": [
+            {{ '{' }}
+              "type": "WRITE_METADATA",
+              "metadata": 1,
+              "metadata_mask": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 44444,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "actions": [
+            {{ '{' }}
+              "type": "METER",
+              "meter_id": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+    </div>
+  
+    <h2>Flow Rules Examples (OpenFlow 1.4 or later):</h2>
+    <div class="example-container">
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "cookie": 1,
+          "cookie_mask": 1,
+          "table_id": 0,
+          "idle_timeout": 30,
+          "hard_timeout": 30,
+          "priority": 11111,
+          "flags": 1,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "instructions": [
+            {{ '{' }}
+              "type": "APPLY_ACTIONS",
+              "actions": [
+                {{ '{' }}
+                  "max_len": 65535,
+                  "port": 2,
+                  "type": "OUTPUT"
+                {{ '}' }}
+              ]
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 22222,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "instructions": [
+            {{ '{' }}
+              "type": "GOTO_TABLE",
+              "table_id": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 33333,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "instructions": [
+            {{ '{' }}
+              "type": "WRITE_METADATA",
+              "metadata": 1,
+              "metadata_mask": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+      <div class="example">
+        <pre><code>
+        {{ '{' }}
+          "dpid": 1,
+          "priority": 44444,
+          "match": {{ '{' }}
+            "in_port": 1
+          {{ '}' }},
+          "instructions": [
+            {{ '{' }}
+              "type": "METER",
+              "meter_id": 1
+            {{ '}' }}
+          ]
+        {{ '}' }}
+        </code></pre>
+      </div>
+    </div>
+  </div>
+
+  
