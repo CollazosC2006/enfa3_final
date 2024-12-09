@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class NetworkService {
 
-  private baseUrl = 'http://192.168.176.146:8080/v1.0/topology'; // Cambia <ryu-ip> por la IP de Ryu
+  private baseUrl = 'http://localhost:8000'; // Cambia <ryu-ip> por la IP de Ryu
 
   constructor(private http: HttpClient) {}
 
