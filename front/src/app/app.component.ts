@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { NgFor, NgStyle } from '@angular/common';
 import { FlowRulesComponent } from "./flow-rules/flow-rules.component";
 import { ExamplesComponent } from './examples/examples.component';
+import { NetworkGraphComponent } from './network-graph/network-graph.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ NgStyle, NgFor, FlowRulesComponent,FlowRulesComponent,ExamplesComponent],
+  imports: [ NgStyle, NgFor, FlowRulesComponent,FlowRulesComponent,ExamplesComponent,NetworkGraphComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
