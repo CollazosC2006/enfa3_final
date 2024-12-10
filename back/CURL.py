@@ -7,13 +7,13 @@ app = FastAPI()
 # Configuración de CORS para permitir solicitudes desde tu página web
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://192.168.176.219:4200"],  # Cambia esto al puerto donde corre tu Angular
+    allow_origins=["http://localhost:4200"],  # Cambia esto al puerto donde corre tu Angular
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos (GET, POST, etc.)
     allow_headers=["*"],  # Permitir todos los encabezados
 )
 # URL base del servidor Ryu
-RYU_BASE_URL = "http://192.168.176.146:8080/v1.0/topology"
+RYU_BASE_URL = "http://192.168.233.146:8080/v1.0/topology"
 
 # Ruta para obtener switches
 @app.get("/switches")
