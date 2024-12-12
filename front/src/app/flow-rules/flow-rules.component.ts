@@ -1,33 +1,72 @@
-import { NgClass, NgFor, NgStyle } from '@angular/common';
-import { Component } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { NetworkService } from '../services/network.service';
+import { FlowsService } from '../services/flows.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-flow-rules',
   standalone: true,
-  imports: [NgStyle,NgFor,FormsModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './flow-rules.component.html',
-  styleUrl: './flow-rules.component.css'
+  styleUrls: ['./flow-rules.component.css'],
 })
-export class FlowRulesComponent {
-  flowRules = ''; // Contenido del textarea
+export class FlowRulesComponent implements OnInit {
+  flowRules = ''; 
+  switches: number[] = []; // Lista de switches obtenidos de la API
+  selectedSwitch: number = 1; // Switch seleccionado
+  rules: any[] = []; 
 
-  switches = ['S1', 'S2', 'S3', 'S4', 'S5']; // Opciones del select
-  selectedSwitch = 'S1'; // Valor seleccionado
-  rules = [
-    'Regla 1: Permitir tráfico en puerto 1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-    'Regla 2: Bloquear tráfico en puerto 3.',
-    'Regla 3: Redirigir puerto 2 al puerto 4.',
-  ]; // Reglas de ejemplo
+  constructor(private flowsService: FlowsService) {}
 
-
-  onSubmit() {
-    console.log('Formulario enviado con las reglas:', this.flowRules);
-    this.flowRules='';
-    // Aquí puedes añadir lógica para enviar los datos al servidor
+  ngOnInit() {
+    this.loadSwitches();
   }
 
+  // Método para cargar los switches desde el servicio
+  loadSwitches() {
+    this.flowsService.getSwitches().subscribe(
+      (data) => {
+        this.switches = data;
+        this.selectedSwitch = this.switches[0]; // Establece el primer switch como seleccionado
+        console.log('Switches obtenidos:', this.switches);
+      },
+      (error) => {
+        console.error('Error al obtener los switches:', error);
+      }
+    );
+  }
+
+  obtener() {
+    this.flowsService.getRules(this.selectedSwitch).subscribe(
+      (data) => {
+      let firstArray = Object.values(data)[0];  
+        console.log('Reglas obtenidass:', firstArray);
+      this.rules = firstArray;  
+
+      },
+      (error) => {
+        console.error('Error al obtener las reglas:', error);
+      }
+    );
+  }
+
+  onSubmit() {
+    try {
+      const ruleJson = JSON.parse(this.flowRules);
   
+      console.log('Formulario enviado con las reglas:', ruleJson);
+      this.flowsService.addRule(ruleJson).subscribe(
+        (data) => {
+          console.log('Regla añadida:', data);
+          this.obtener();
+        },
+        (error) => {
+          console.error('Error al añadir la regla:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Error al parsear el JSON de la regla:', error);
+    }
+  }
 }
