@@ -24,15 +24,15 @@ app.add_middleware(
     allow_headers=["*"],  # Permitir todos los encabezados
 )
 # URL base del servidor Ryu
-RYU_BASE_URL = "http://192.168.1.10:8080/v1.0/topology"
+RYU_BASE_URL = "http://192.168.10.22:8080/v1.0/topology"
 
 
 # Dirección del servidor Ryu
-RYU_SERVER_IP = "192.168.1.10"  
+RYU_SERVER_IP = "192.168.10.22"  
 RYU_SERVER_PORT = 8080
 RYU_BASE_URL2 = f"http://{RYU_SERVER_IP}:{RYU_SERVER_PORT}"
-RYU_USER= "ryu"
-RYU_PASS= "ryu"
+RYU_USER= "admin"
+RYU_PASS= "admin"
 ryu_process = None
 # Ruta para obtener switches
 @app.get("/switches")

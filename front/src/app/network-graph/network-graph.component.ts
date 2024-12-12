@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy} from '@angular/core';
+import { Component, OnInit, ElementRef} from '@angular/core';
 import { NetworkService } from '../services/network.service';
 import * as d3 from 'd3';
 import { SimulationNodeDatum, SimulationLinkDatum } from 'd3';
@@ -13,82 +13,34 @@ import { SimulationNodeDatum, SimulationLinkDatum } from 'd3';
 })
 
 
-export class NetworkGraphComponent implements OnInit, OnDestroy {
-  private previousData: { switches: any[]; links: any[]; hosts: any[] } = {
-    switches: [],
-    links: [],
-    hosts: [],
-  };
-  private intervalId: any;
+export class NetworkGraphComponent implements OnInit {
+
+  
+
+  private socket: WebSocket | null = null;
 
   constructor(
     private networkService: NetworkService,
-    private el: ElementRef
+    private el: ElementRef,
+    
   ) {}
 
   ngOnInit(): void {
-    this.loadInitialTopology();
+    this.loadTopology(); 
   }
 
-  ngOnDestroy(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-  }
 
-  async loadInitialTopology(): Promise<void> {
-    try {
-      console.log('Cargando topología inicial...');
-      const [switches, links, hosts] = await this.loadNetworkData();
-      this.previousData = { switches, links, hosts };
-      this.renderGraph(switches, links, hosts);
+  
 
-      console.log('Topología inicial cargada. Iniciando verificaciones periódicas...');
-      //setTimeout(() => this.startUpdateCheck(), 60000); // Esperar para no sobrecargar
-    } catch (error) {
-      console.error('Error al cargar la topología inicial:', error);
-    }
-  }
-
-  async loadNetworkData(): Promise<[any[], any[], any[]]> {
-    try {
-      const [switches, links, hosts] = await Promise.all([
-        this.networkService.getSwitches().toPromise(),
-        this.networkService.getLinks().toPromise(),
-        this.networkService.getHosts().toPromise(),
-      ]);
-      return [switches || [], links || [], hosts || []];
-    } catch (error) {
-      console.error('Error al obtener datos de la red:', error);
-      return [[], [], []];
-    }
-  }
-
-  async startUpdateCheck(): Promise<void> {
-    //this.intervalId = setInterval(async () => {
-      try {
-        const [switches, links, hosts] = await this.loadNetworkData();
-
-        const newData = { switches, links, hosts };
-        if (this.hasDataChanged(newData)) {
-          console.log('Cambios detectados en la red. Actualizando...');
-          this.previousData = newData;
-          this.renderGraph(switches, links, hosts);
-        } else {
-          console.log('No hay cambios en la red.');
-        }
-      } catch (error) {
-        console.error('Error al verificar actualizaciones de la red:', error);
-      }
-    //}, 2000);
-  }
-
-  hasDataChanged(newData: { switches: any[]; links: any[]; hosts: any[] }): boolean {
-    return (
-      JSON.stringify(this.previousData.switches) !== JSON.stringify(newData.switches) ||
-      JSON.stringify(this.previousData.links) !== JSON.stringify(newData.links) ||
-      JSON.stringify(this.previousData.hosts) !== JSON.stringify(newData.hosts)
-    );
+  loadTopology(): void {
+    // Solicitar los datos de la topología
+    Promise.all([
+      this.networkService.getSwitches().toPromise(),
+      this.networkService.getLinks().toPromise(),
+      this.networkService.getHosts().toPromise(),
+    ]).then(([switches, links, hosts]) => {
+      this.renderGraph(switches || [], links || [], hosts || []);
+    });
   }
 
   renderGraph(
@@ -96,50 +48,59 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
     links: any[],
     hosts: any[]
   ): void {
-    d3.select(this.el.nativeElement.querySelector('#networkGraph')).selectAll('*').remove();
-
-    
     const width = 960;
-    const height = 500;
-
+    const height = 600;
+  
     d3.select(this.el.nativeElement.querySelector('#networkGraph')).selectAll('*').remove();
     const svg = d3
       .select(this.el.nativeElement.querySelector('#networkGraph'))
       .append('svg')
       .attr('width', width)
       .attr('height', height);
-
+  
     type NetworkNode = SimulationNodeDatum & { id: any; type: string; ip?: string };
     type NetworkLink = SimulationLinkDatum<NetworkNode> & {
       srcPort: string;
       dstPort: string;
     };
-
+  
     const nodes: NetworkNode[] = [
       ...switches.map((sw) => ({ id: sw.dpid, type: 'switch' })),
-      ...hosts.map((host) => ({
+    ];
+  
+    // Obtener lista de DPIDs válidos de los switches
+    const validSwitchDpids = nodes.map((node) => node.id);
+  
+    // Filtrar los hosts que estén conectados a switches existentes
+    const validHosts = hosts.filter((host) => validSwitchDpids.includes(host.port.dpid));
+  
+    // Añadir los hosts filtrados a la lista de nodos
+    nodes.push(
+      ...validHosts.map((host) => ({
         id: host.mac,
         ip: host.ipv4[0],
-        type: 'host'
-      })),
-    ];
-
+        type: 'host',
+      }))
+    );
+  
     // Crear enlaces entre switches y entre hosts y switches
     const linkData: NetworkLink[] = [
-      ...links.map((link) => ({
-        source: link.src.dpid,
-        target: link.dst.dpid,
-        srcPort: link.src.name,
-        dstPort: link.dst.name,
-      })),
-      ...hosts.map((host) => ({
+      ...links
+        .filter((link) => validSwitchDpids.includes(link.src.dpid) && validSwitchDpids.includes(link.dst.dpid))
+        .map((link) => ({
+          source: link.src.dpid,
+          target: link.dst.dpid,
+          srcPort: link.src.name,
+          dstPort: link.dst.name,
+        })),
+      ...validHosts.map((host) => ({
         source: host.port.dpid,
         target: host.mac,
         srcPort: host.port.name,
         dstPort: '', // Los hosts no tienen un puerto adicional
       })),
     ];
-
+  
     const simulation = d3
       .forceSimulation<NetworkNode>(nodes)
       .force(
@@ -149,8 +110,7 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide().radius(30)); // Evitar superposición de nodos
-      
-
+  
     const link = svg
       .selectAll<SVGLineElement, NetworkLink>('line')
       .data(linkData)
@@ -158,7 +118,7 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
       .append('line')
       .style('stroke', '#aaa')
       .style('stroke-width', 2);
-
+  
     const node = svg
       .selectAll<SVGGElement, NetworkNode>('g')
       .data(nodes)
@@ -183,7 +143,7 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
             d.fy = null;
           })
       );
-
+  
     // Añadir nodos
     node
       .append('image')
@@ -196,21 +156,19 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
       .attr('y', -20) // Centrar la imagen verticalmente
       .attr('width', (d) => (d.type === 'switch' ? 60 : 35)) // Ancho de la imagen
       .attr('height', (d) => (d.type === 'switch' ? 60 : 35)); // Altura de la imagen
-
+  
     // Añadir etiquetas para nodos
     node
       .append('text')
       .attr('dx', (d) => {
-        // Ajuste horizontal basado en la posición del nodo
-        if (d.x! < 40) return 20; // Nodo cerca del borde izquierdo
-        if (d.x! > width - 40) return -20; // Nodo cerca del borde derecho
-        return 0; // Nodo centrado
+        if (d.x! < 40) return 20;
+        if (d.x! > width - 40) return -20;
+        return 0;
       })
       .attr('dy', (d) => {
-        // Ajuste vertical basado en la posición del nodo
-        if (d.y! < 40) return 30; // Nodo cerca del borde superior
-        if (d.y! > height - 40) return -10; // Nodo cerca del borde inferior
-        return -25; // Nodo centrado
+        if (d.y! < 40) return 30;
+        if (d.y! > height - 40) return -10;
+        return -25;
       })
       .text((d) =>
         d.type === 'switch'
@@ -218,7 +176,7 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
           : `Host: ${d.ip || d.id}`
       )
       .style('font-size', '12px')
-      .style('text-anchor', 'middle'); // Centrado horizontal del texto
+      .style('text-anchor', 'middle');
 
     const port = svg
       .selectAll<SVGGElement, NetworkLink>('g.port')
@@ -298,8 +256,6 @@ export class NetworkGraphComponent implements OnInit, OnDestroy {
       });
     
     });
-    // Código de renderizado de la red (ya lo tienes en tu implementación)
-    console.log('Red renderizada con éxito.');
   }
 
 }
