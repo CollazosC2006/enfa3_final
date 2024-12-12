@@ -12,9 +12,8 @@ export class AppService {
   constructor(private http: HttpClient) {}
 
   startApp(appName: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/start-ryu`, { appName});
+    return this.http.post<any>(`${this.apiUrl}/start-ryu`, { app_name: appName });
   }
-
   stopApp(): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/stop-ryu`, {});
   }
