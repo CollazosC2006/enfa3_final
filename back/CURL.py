@@ -95,7 +95,7 @@ async def websocket_proxy(websocket: WebSocket):
 async def start_ryu(request: Request):
     global ryu_process
     try:
-        stop_ryu()
+        
         data = await request.json()
         app_name = data.get('app_name')
         
@@ -103,8 +103,10 @@ async def start_ryu(request: Request):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=RYU_SERVER_IP, username=RYU_USER, password=RYU_PASS)
 
+        
+        
         # Ejecutar el comando ryu-manager con el app 'simple_switch.py'
-        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app/{app_name} --observe-links rest_topology.py ofctl_rest.py"
+        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app{app_name}"
         
         ryu_process = ssh.exec_command(command, get_pty=True)  # Ejecuta el comando y obtiene el canal
         # Acceder al canal de stdin y stdout

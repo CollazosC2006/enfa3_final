@@ -21,7 +21,7 @@ export class AppComponent {
     { label: 'Simple Switch', value: 'simple_switch.py'},
     { label: 'Simple Switch v1.3', value: 'simple_switch_13.py' },
     { label: 'Simple Switch stp', value: 'simple_switch_stp.py' },
-    { label: 'App 4', value: 'simple_switch_stp_13.py' },
+    { label: 'OFCTL Rest', value: 'ofctl_rest.py' },
   ];
 
   buttons = [
