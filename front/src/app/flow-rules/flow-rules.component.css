@@ -124,4 +124,9 @@
     filter: brightness(1.1);
     cursor: pointer ;
   }
-  
+  .custom-select {
+    width: 150px;  
+  }
+  .custom-select2 {
+    width: 100px;  
+  }

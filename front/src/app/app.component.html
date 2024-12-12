@@ -6,7 +6,6 @@
   
 </div>
 <div class="container-fluid">
-  <!-- Barra de navegación -->
  
 
   <!-- Contenido principal: Div gráfico y botones en paralelo -->
@@ -19,24 +18,20 @@
       </div>
     </div>
 
-    <!-- Botones de aplicaciones -->
-    <div class="col-lg-4 col-md-5 d-flex flex-column align-items-center">
-      <h2 class="text-center mb-3" style="text-align: center;">Network Apps</h2>
-        <div *ngFor="let button of buttons" class="btn-group-vertical w-75">
-        <button
-    
-          class="btn app-button mb-2"
-          [ngStyle]="{
-            backgroundColor: button.state ? 'var(--third-color)' : 'var(--primary-color)',
-            color: button.state ? 'black' : 'white'
-          }"
-          (click)="toggleButton(button)"
-        >
-          {{ button.label }}
-        </button>
-
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-6">
+          <label for="networkAppSelect">Select Network App:</label>
+          <select id="networkAppSelect" [(ngModel)]="selectedApp" class="form-control">
+            <option *ngFor="let app of networkApps" [value]="app.value">{{ app.label }}</option>
+          </select>
         </div>
-    </div> 
+        <div class="col-md-6">
+          <button (click)="startApp()" class="btn btn-success">Start</button>
+          <button (click)="stopApp()" class="btn btn-danger">Stop</button>
+        </div>
+      </div>
+    </div>
   </div>  
 </div>
 

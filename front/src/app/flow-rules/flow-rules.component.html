@@ -1,39 +1,42 @@
 <div class="container mt-4">
-    <!-- Títulos y Contenedores -->
-    <div class="row">
-      <!-- Columna Izquierda: Formulario -->
-      <div class="col-md-6" style="margin-left: 55px;">
-        <form (ngSubmit)="onSubmit()" #uploadForm="ngForm">
-          <div class="d-flex align-items-center justify-content-between mb-3" style="gap: 10px;">
-            <h2 class="mb-0">Upload Flow Rules</h2>
-            <button type="submit" class="upload" style="width: 100px;">Upload</button>
-          </div>
-          <textarea
-            class="form-control"
-            name="flowRules"
-            [(ngModel)]="flowRules"
-            [ngStyle]="{ height: '400px', width: '450px' }"
-            placeholder="Enter the JSON here..."
-            required
-          ></textarea>
-        </form>
-      </div>
-  
-      <!-- Columna Derecha: Cuadro de Texto -->
-      <div class="col-md-6" style="margin-left: 50px;">
+  <!-- Títulos y Contenedores -->
+  <div class="row">
+    <!-- Columna Izquierda: Formulario -->
+    <div class="col-md-6" style="margin-left: 55px;">
+      <form (ngSubmit)="onSubmit()" #uploadForm="ngForm">
         <div class="d-flex align-items-center justify-content-between mb-3" style="gap: 10px;">
-          <h2 class="mb-0">See Flow Rules</h2>
-          <select class="select">
-            <option *ngFor="let switch of switches" [value]="switch">
-              {{ switch }}
-            </option>
-          </select>
+          <h2 class="mb-0">Upload Flow Rules</h2>
+          <button type="submit" class="upload" style="width: 100px;">Upload</button>
         </div>
-        <div class="rules" [ngStyle]="{ height: '400px', width:'450px',overflowY: 'auto' }">
-          <!-- Aquí se mostrarían las reglas de flujo -->
-          <p *ngFor="let rule of rules">{{ rule }}</p>
-        </div>
+        <textarea
+          class="form-control"
+          name="flowRules"
+          [(ngModel)]="flowRules"
+          [ngStyle]="{ height: '400px', width: '450px' }"
+          placeholder="Enter the JSON here..."
+          required
+        ></textarea>
+      </form>
+    </div>
+
+    <!-- Columna Derecha: Cuadro de Texto -->
+    <div class="col-md-6" style="margin-left: 50px;">
+      <div class="d-flex align-items-center justify-content-between mb-3" style="gap: 10px;">
+        <h2 class="mb-0">See Flow Rules</h2>
+        <select
+  class="select custom-select"  
+  [(ngModel)]="selectedSwitch"
+>
+  <option *ngFor="let switch of switches" [value]="switch">
+    Switch {{ switch }}
+  </option>
+</select>
+<button  style="width: 100px;" class="upload" (click)="obtener()">Get</button>
+
+      </div>
+      <div class="rules" [ngStyle]="{ height: '400px', width:'450px',overflowY: 'auto' }">
+        <p *ngFor="let rule of rules">{{ rule|json }}</p>
       </div>
     </div>
+  </div>
 </div>
-  
