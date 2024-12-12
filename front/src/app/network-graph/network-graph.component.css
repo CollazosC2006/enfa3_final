@@ -17,3 +17,20 @@
     stroke: #999;
   }
   
+  .upload{
+
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 50px;
+    height: 25px;
+    color: white;
+    background-color: var(--primary-color);
+    transition: transform 0.2s, background-color 0.3s;
+  }
+
+  .upload:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+    cursor: pointer ;
+  }
