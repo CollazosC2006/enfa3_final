@@ -12,7 +12,7 @@ export class FlowsService {
   constructor(private http: HttpClient) {}
 
   getSwitches(): Observable<number[]> {
-    return this.http.get<number[]>(`${this.apiUrl}/switches`);
+    return this.http.get<number[]>(`${this.apiUrl}/switchesinfo`);
   }
   getRules(switchId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/stats/flow/${switchId}`);
