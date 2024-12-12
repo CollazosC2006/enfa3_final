@@ -1,55 +1,72 @@
 {
-  "hash": "59a1cb10",
-  "configHash": "3eaf8fba",
-  "lockfileHash": "aa25344b",
-  "browserHash": "5fee4b2c",
+
+  "hash": "4eb8cba8",
+  "configHash": "7f26f651",
+  "lockfileHash": "303a1f71",
+  "browserHash": "afc40702",
+
   "optimized": {
     "@angular/common": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "394c75b2",
+
+      "fileHash": "73fff503",
       "needsInterop": false
     },
     "@angular/common/http": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/http.mjs",
       "file": "@angular_common_http.js",
-      "fileHash": "7342c577",
+
+      "fileHash": "84e29943",
+
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "2e0a99c6",
+
+      "fileHash": "1f06587f",
+
       "needsInterop": false
     },
     "@angular/forms": {
       "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
       "file": "@angular_forms.js",
-      "fileHash": "17afe128",
+
+      "fileHash": "9f3c47fd",
+
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "a1f0f818",
+
+      "fileHash": "a221d8d7",
+
       "needsInterop": false
     },
     "@angular/platform-server": {
       "src": "../../../../../../node_modules/@angular/platform-server/fesm2022/platform-server.mjs",
       "file": "@angular_platform-server.js",
-      "fileHash": "7ce51fcd",
+
+      "fileHash": "53b0289c",
+
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "9ad5a4ed",
+
+      "fileHash": "25b4b761",
+
       "needsInterop": false
     },
     "d3": {
       "src": "../../../../../../node_modules/d3/src/index.js",
       "file": "d3.js",
-      "fileHash": "d39bb703",
+
+      "fileHash": "33d26d9b",
+
       "needsInterop": false
     }
   },

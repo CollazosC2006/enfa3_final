@@ -1,5 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import WebSocket, WebSocketDisconnect
+import asyncio
+import websockets
 import httpx
 
 app = FastAPI()
@@ -13,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],  # Permitir todos los encabezados
 )
 # URL base del servidor Ryu
-RYU_BASE_URL = "http://192.168.233.146:8080/v1.0/topology"
+RYU_BASE_URL = "http://192.168.10.22:8080/v1.0/topology"
 
 # Ruta para obtener switches
 @app.get("/switches")
@@ -47,3 +50,26 @@ async def get_hosts():
             return response.json()
         except httpx.RequestError as exc:
             raise HTTPException(status_code=500, detail=f"Request failed: {exc}")
+        
+
+@app.websocket("/ws")
+async def websocket_proxy(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        # Conectar al servidor WebSocket de Ryu
+        async with websockets.connect("ws://192.168.10.22:8080/v1.0/topology/ws") as ryu_ws:
+            # Escuchar mensajes en ambas direcciones
+            async def forward_to_ryu():
+                async for message in websocket.iter_text():
+                    await ryu_ws.send(message)
+
+            async def forward_to_client():
+                async for message in ryu_ws:
+                    await websocket.send_text(message)
+
+            # Ejecutar ambas tareas concurrentemente
+            await asyncio.gather(forward_to_ryu(), forward_to_client())
+    except WebSocketDisconnect:
+        print("WebSocket disconnected from client")
+    except Exception as e:
+        print(f"Error: {e}")

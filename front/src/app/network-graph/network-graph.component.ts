@@ -1,7 +1,8 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy} from '@angular/core';
 import { NetworkService } from '../services/network.service';
 import * as d3 from 'd3';
 import { SimulationNodeDatum, SimulationLinkDatum } from 'd3';
+
 
 @Component({
   selector: 'app-network-graph',
@@ -12,27 +13,82 @@ import { SimulationNodeDatum, SimulationLinkDatum } from 'd3';
 })
 
 
-export class NetworkGraphComponent {
+export class NetworkGraphComponent implements OnInit, OnDestroy {
+  private previousData: { switches: any[]; links: any[]; hosts: any[] } = {
+    switches: [],
+    links: [],
+    hosts: [],
+  };
+  private intervalId: any;
+
   constructor(
     private networkService: NetworkService,
     private el: ElementRef
   ) {}
 
   ngOnInit(): void {
-    this.loadTopology();
+    this.loadInitialTopology();
   }
 
-  
+  ngOnDestroy(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 
-  loadTopology(): void {
-    // Solicitar los datos de la topología
-    Promise.all([
-      this.networkService.getSwitches().toPromise(),
-      this.networkService.getLinks().toPromise(),
-      this.networkService.getHosts().toPromise(),
-    ]).then(([switches, links, hosts]) => {
-      this.renderGraph(switches || [], links || [], hosts || []);
-    });
+  async loadInitialTopology(): Promise<void> {
+    try {
+      console.log('Cargando topología inicial...');
+      const [switches, links, hosts] = await this.loadNetworkData();
+      this.previousData = { switches, links, hosts };
+      this.renderGraph(switches, links, hosts);
+
+      console.log('Topología inicial cargada. Iniciando verificaciones periódicas...');
+      //setTimeout(() => this.startUpdateCheck(), 60000); // Esperar para no sobrecargar
+    } catch (error) {
+      console.error('Error al cargar la topología inicial:', error);
+    }
+  }
+
+  async loadNetworkData(): Promise<[any[], any[], any[]]> {
+    try {
+      const [switches, links, hosts] = await Promise.all([
+        this.networkService.getSwitches().toPromise(),
+        this.networkService.getLinks().toPromise(),
+        this.networkService.getHosts().toPromise(),
+      ]);
+      return [switches || [], links || [], hosts || []];
+    } catch (error) {
+      console.error('Error al obtener datos de la red:', error);
+      return [[], [], []];
+    }
+  }
+
+  async startUpdateCheck(): Promise<void> {
+    //this.intervalId = setInterval(async () => {
+      try {
+        const [switches, links, hosts] = await this.loadNetworkData();
+
+        const newData = { switches, links, hosts };
+        if (this.hasDataChanged(newData)) {
+          console.log('Cambios detectados en la red. Actualizando...');
+          this.previousData = newData;
+          this.renderGraph(switches, links, hosts);
+        } else {
+          console.log('No hay cambios en la red.');
+        }
+      } catch (error) {
+        console.error('Error al verificar actualizaciones de la red:', error);
+      }
+    //}, 2000);
+  }
+
+  hasDataChanged(newData: { switches: any[]; links: any[]; hosts: any[] }): boolean {
+    return (
+      JSON.stringify(this.previousData.switches) !== JSON.stringify(newData.switches) ||
+      JSON.stringify(this.previousData.links) !== JSON.stringify(newData.links) ||
+      JSON.stringify(this.previousData.hosts) !== JSON.stringify(newData.hosts)
+    );
   }
 
   renderGraph(
@@ -40,8 +96,11 @@ export class NetworkGraphComponent {
     links: any[],
     hosts: any[]
   ): void {
+    d3.select(this.el.nativeElement.querySelector('#networkGraph')).selectAll('*').remove();
+
+    
     const width = 960;
-    const height = 600;
+    const height = 500;
 
     d3.select(this.el.nativeElement.querySelector('#networkGraph')).selectAll('*').remove();
     const svg = d3
@@ -125,54 +184,55 @@ export class NetworkGraphComponent {
           })
       );
 
-    // Añadir círculos para nodos
+    // Añadir nodos
     node
-  .append('image')
-  .attr('xlink:href', (d) =>
-    d.type === 'switch'
-      ? '/switch.svg' // Ruta a la imagen del switch
-      : '/host.svg'   // Ruta a la imagen del host
-  )
-  .attr('x', -20) // Centrar la imagen horizontalmente
-  .attr('y', -20) // Centrar la imagen verticalmente
-  .attr('width', (d) => (d.type === 'switch' ? 60 : 35)) // Ancho de la imagen
-  .attr('height', (d) => (d.type === 'switch' ? 60 : 35)); // Altura de la imagen
+      .append('image')
+      .attr('xlink:href', (d) =>
+        d.type === 'switch'
+          ? '/switch.svg' // Ruta a la imagen del switch
+          : '/host.svg'   // Ruta a la imagen del host
+      )
+      .attr('x', -20) // Centrar la imagen horizontalmente
+      .attr('y', -20) // Centrar la imagen verticalmente
+      .attr('width', (d) => (d.type === 'switch' ? 60 : 35)) // Ancho de la imagen
+      .attr('height', (d) => (d.type === 'switch' ? 60 : 35)); // Altura de la imagen
 
     // Añadir etiquetas para nodos
-  node
-    .append('text')
-    .attr('dx', (d) => {
-      // Ajuste horizontal basado en la posición del nodo
-      if (d.x! < 40) return 20; // Nodo cerca del borde izquierdo
-      if (d.x! > width - 40) return -20; // Nodo cerca del borde derecho
-      return 0; // Nodo centrado
-    })
-    .attr('dy', (d) => {
-      // Ajuste vertical basado en la posición del nodo
-      if (d.y! < 40) return 30; // Nodo cerca del borde superior
-      if (d.y! > height - 40) return -10; // Nodo cerca del borde inferior
-      return -25; // Nodo centrado
-    })
-    .text((d) =>
-      d.type === 'switch'
-        ? `Switch: ${formatDpid(d.id)}`
-        : `Host: ${d.ip || d.id}`
-    )
-    .style('font-size', '12px')
-    .style('text-anchor', 'middle'); // Centrado horizontal del texto
+    node
+      .append('text')
+      .attr('dx', (d) => {
+        // Ajuste horizontal basado en la posición del nodo
+        if (d.x! < 40) return 20; // Nodo cerca del borde izquierdo
+        if (d.x! > width - 40) return -20; // Nodo cerca del borde derecho
+        return 0; // Nodo centrado
+      })
+      .attr('dy', (d) => {
+        // Ajuste vertical basado en la posición del nodo
+        if (d.y! < 40) return 30; // Nodo cerca del borde superior
+        if (d.y! > height - 40) return -10; // Nodo cerca del borde inferior
+        return -25; // Nodo centrado
+      })
+      .text((d) =>
+        d.type === 'switch'
+          ? `Switch: ${formatDpid(d.id)}`
+          : `Host: ${d.ip || d.id}`
+      )
+      .style('font-size', '12px')
+      .style('text-anchor', 'middle'); // Centrado horizontal del texto
+
     const port = svg
       .selectAll<SVGGElement, NetworkLink>('g.port')
       .data(linkData)
       .enter()
       .append('g')
       .attr('class', 'port');
-    
+      
     port
       .append('circle')
       .attr('r', 10)
       .attr('fill', '#FFD700')
       .style('stroke', '#000');
-      
+        
 
     port
       .append('text')
@@ -182,63 +242,66 @@ export class NetworkGraphComponent {
       .style('text-anchor', 'middle') // Centrado horizontal
       .style('dominant-baseline', 'middle'); // Centrado vertical
 
-      simulation.on('tick', () => {
-        link
-          .attr('x1', (d) => Math.max(20, Math.min(width - 20, (d.source as NetworkNode).x!)))
-          .attr('y1', (d) => Math.max(20, Math.min(height - 20, (d.source as NetworkNode).y!)))
-          .attr('x2', (d) => Math.max(20, Math.min(width - 20, (d.target as NetworkNode).x!)))
-          .attr('y2', (d) => Math.max(20, Math.min(height - 20, (d.target as NetworkNode).y!)));
-      
-        node.attr('transform', (d) => {
-          d.x = Math.max(20, Math.min(width - 20, d.x!));
-          d.y = Math.max(20, Math.min(height - 20, d.y!));
-          return `translate(${d.x},${d.y})`;
-        });
-
-        port.each(function (d) {
-          const g = d3.select(this);
-      
-          // Coordenadas del nodo fuente (source) y destino (target)
-          const x1 = (d.source as NetworkNode).x!;
-          const y1 = (d.source as NetworkNode).y!;
-          const x2 = (d.target as NetworkNode).x!;
-          const y2 = (d.target as NetworkNode).y!;
-      
-          // Calcular la dirección del enlace
-          const angle = Math.atan2(y2 - y1, x2 - x1); // Ángulo de la línea
-          const offset = 20; // Distancia del puerto al nodo
-      
-          // Posicionar puerto en el extremo del nodo fuente
-          const srcX = x1 + offset * Math.cos(angle);
-          const srcY = y1 + offset * Math.sin(angle);
-          g.select('circle')
-            .filter((_, i) => i % 2 === 0) // Círculo del puerto fuente
-            .attr('cx', srcX)
-            .attr('cy', srcY);
-      
-          g.select('text')
-            .filter((_, i) => i % 2 === 0) // Texto del puerto fuente
-            .text(() => formatPortName(d.srcPort))
-            .attr('x', srcX)
-            .attr('y', srcY);
-      
-          // Posicionar puerto en el extremo del nodo destino
-          const dstX = x2 - offset * Math.cos(angle);
-          const dstY = y2 - offset * Math.sin(angle);
-          g.select('circle')
-            .filter((_, i) => i % 2 === 1) // Círculo del puerto destino
-            .attr('cx', dstX)
-            .attr('cy', dstY);
-      
-          g.select('text')
-            .filter((_, i) => i % 2 === 1) // Texto del puerto destino
-            .text(() => formatPortName(d.dstPort))
-            .attr('x', dstX)
-            .attr('y', dstY);
-        });
-    
+    simulation.on('tick', () => {
+      link
+        .attr('x1', (d) => Math.max(20, Math.min(width - 20, (d.source as NetworkNode).x!)))
+        .attr('y1', (d) => Math.max(20, Math.min(height - 20, (d.source as NetworkNode).y!)))
+        .attr('x2', (d) => Math.max(20, Math.min(width - 20, (d.target as NetworkNode).x!)))
+        .attr('y2', (d) => Math.max(20, Math.min(height - 20, (d.target as NetworkNode).y!)));
+        
+      node.attr('transform', (d) => {
+        d.x = Math.max(20, Math.min(width - 20, d.x!));
+        d.y = Math.max(20, Math.min(height - 20, d.y!));
+        return `translate(${d.x},${d.y})`;
       });
+
+      port.each(function (d) {
+        const g = d3.select(this);
+        
+        // Coordenadas del nodo fuente (source) y destino (target)
+        const x1 = (d.source as NetworkNode).x!;
+        const y1 = (d.source as NetworkNode).y!;
+        const x2 = (d.target as NetworkNode).x!;
+        const y2 = (d.target as NetworkNode).y!;
+        
+        // Calcular la dirección del enlace
+        const angle = Math.atan2(y2 - y1, x2 - x1); // Ángulo de la línea
+        const offset = 20; // Distancia del puerto al nodo
+        
+        // Posicionar puerto en el extremo del nodo fuente
+        const srcX = x1 + offset * Math.cos(angle);
+        const srcY = y1 + offset * Math.sin(angle);
+        g.select('circle')
+          .filter((_, i) => i % 2 === 0) // Círculo del puerto fuente
+          .attr('cx', srcX)
+          .attr('cy', srcY);
+        
+        g.select('text')
+          .filter((_, i) => i % 2 === 0) // Texto del puerto fuente
+          .text(() => formatPortName(d.srcPort))
+          .attr('x', srcX)
+          .attr('y', srcY);
+        
+        // Posicionar puerto en el extremo del nodo destino
+        const dstX = x2 - offset * Math.cos(angle);
+        const dstY = y2 - offset * Math.sin(angle);
+        g.select('circle')
+          .filter((_, i) => i % 2 === 1) // Círculo del puerto destino
+          .attr('cx', dstX)
+          .attr('cy', dstY);
+        
+        g.select('text')
+          .filter((_, i) => i % 2 === 1) // Texto del puerto destino
+          .text(() => formatPortName(d.dstPort))
+          .attr('x', dstX)
+          .attr('y', dstY);
+      });
+    
+    });
+    // Código de renderizado de la red (ya lo tienes en tu implementación)
+    console.log('Red renderizada con éxito.');
   }
+
 }
 
 function formatPortName(portName: string): string {
