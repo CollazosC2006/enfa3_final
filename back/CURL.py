@@ -24,15 +24,15 @@ app.add_middleware(
     allow_headers=["*"],  # Permitir todos los encabezados
 )
 # URL base del servidor Ryu
-RYU_BASE_URL = "http://192.168.10.22:8080/v1.0/topology"
+RYU_BASE_URL = "http://192.168.1.10:8080/v1.0/topology"
 
 
 # Dirección del servidor Ryu
-RYU_SERVER_IP = "192.168.10.22"  
+RYU_SERVER_IP = "192.168.1.10"  
 RYU_SERVER_PORT = 8080
 RYU_BASE_URL2 = f"http://{RYU_SERVER_IP}:{RYU_SERVER_PORT}"
-RYU_USER= "admin"
-RYU_PASS= "admin"
+RYU_USER= "ryu"
+RYU_PASS= "ryu"
 ryu_process = None
 # Ruta para obtener switches
 @app.get("/switches")
@@ -95,7 +95,6 @@ async def websocket_proxy(websocket: WebSocket):
 async def start_ryu(request: Request):
     global ryu_process
     try:
-        stop_ryu()
         data = await request.json()
         app_name = data.get('app_name')
         
@@ -104,7 +103,7 @@ async def start_ryu(request: Request):
         ssh.connect(hostname=RYU_SERVER_IP, username=RYU_USER, password=RYU_PASS)
 
         # Ejecutar el comando ryu-manager con el app 'simple_switch.py'
-        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app/{app_name} --observe-links rest_topology.py ofctl_rest.py"
+        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app/{app_name}"
         
         ryu_process = ssh.exec_command(command, get_pty=True)  # Ejecuta el comando y obtiene el canal
         # Acceder al canal de stdin y stdout
@@ -118,6 +117,7 @@ async def start_ryu(request: Request):
 async def stop_ryu():
     global ryu_process
     try:
+        print("Deteniendo la aplicación Ryu")
         if ryu_process is not None:
             # Acceder al canal de stdin y escribir el comando de salida 'exit'
             stdin, stdout, stderr = ryu_process
