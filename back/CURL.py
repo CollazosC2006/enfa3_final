@@ -101,9 +101,14 @@ async def start_ryu(request: Request):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=RYU_SERVER_IP, username=RYU_USER, password=RYU_PASS)
-
+        '''
         # Ejecutar el comando ryu-manager con el app 'simple_switch.py'
-        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app/{app_name}"
+        command = f"pkill -f ryu-manager"
+        
+        ryu_process = ssh.exec_command(command, get_pty=True)  # Ejecuta el comando y obtiene el canal
+        '''
+        # Ejecutar el comando ryu-manager con el app 'simple_switch.py'
+        command = f"ryu-manager /usr/lib/python3/dist-packages/ryu/app{app_name}"
         
         ryu_process = ssh.exec_command(command, get_pty=True)  # Ejecuta el comando y obtiene el canal
         # Acceder al canal de stdin y stdout
